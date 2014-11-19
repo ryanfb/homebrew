@@ -26,6 +26,7 @@ class Tesseract < Formula
     depends_on :autoconf
     depends_on :automake
     depends_on :libtool
+    depends_on :x11
     depends_on "pkg-config" => :build
   end
 
@@ -35,6 +36,8 @@ class Tesseract < Formula
   depends_on "libtiff" => :recommended
   depends_on "leptonica"
   depends_on "icu4c"
+  depends_on "glib"
+  depends_on "pango"
 
   fails_with :llvm do
     build 2206
@@ -136,11 +139,9 @@ class Tesseract < Formula
 
     ENV.cxx11 if build.devel?
     
-    ENV["PKG_CONFIG_PATH"] = "/usr/local/lib/pkgconfig:/opt/X11/lib/pkgconfig"
-    ENV["LDFLAGS"] = "-L/usr/local/opt/icu4c/lib #{`pkg-config --libs pango pangocairo glib-2.0`}"
-    ENV["CPPFLAGS"] = "-I/usr/local/opt/icu4c/include #{`pkg-config --cflags pango pangocairo glib-2.0`}"
     system "./autogen.sh" if build.head?
-    system "./configure", "--disable-dependency-tracking", "--prefix=#{prefix}"
+    system "./configure", "--prefix=#{prefix}"
+    system "make"
     system "make install"
     if build.include? "training-tools"
       system "make training"
