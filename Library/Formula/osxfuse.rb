@@ -1,21 +1,23 @@
-require "formula"
-
 class Osxfuse < Formula
-  homepage "http://osxfuse.github.io"
-  url "https://github.com/osxfuse/osxfuse.git", :tag => "osxfuse-2.7.2"
+  homepage "https://osxfuse.github.io/"
+  url "https://github.com/osxfuse/osxfuse.git", :tag => "osxfuse-2.7.5"
 
   head "https://github.com/osxfuse/osxfuse.git", :branch => "osxfuse-2"
 
   bottle do
-    sha1 "2e226a7b4d9370fb5406f83b81d797d740df2cf1" => :yosemite
-    sha1 "e91d507a3ecbf606ed63084ad78783e67e01fa05" => :mavericks
-    sha1 "e9420d4352325ff6761a5ec3f174c77ded42cba3" => :mountain_lion
+    sha1 "332ce64ede6db163578ef893be7cbd18e8014b9c" => :mavericks
+    sha1 "58420e5c9cc687f5ddd6fb670ca25785f3f9468e" => :mountain_lion
   end
 
   depends_on :macos => :snow_leopard
   depends_on :xcode => :build
-  depends_on ConflictsWithBinaryOsxfuse
-  depends_on UnsignedKextRequirement
+
+  # A fairly heinous hack to workaround our dependency resolution getting upset
+  # See https://github.com/Homebrew/homebrew/issues/35073
+  depends_on ConflictsWithBinaryOsxfuse => :build
+  depends_on UnsignedKextRequirement => [ :cask => "osxfuse",
+      :download => "http://sourceforge.net/projects/osxfuse/files/" ]
+
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build

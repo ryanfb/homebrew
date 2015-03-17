@@ -1,9 +1,5 @@
-require "formula"
-
 class Zeromq < Formula
   homepage "http://www.zeromq.org/"
-  url "http://download.zeromq.org/zeromq-4.0.5.tar.gz"
-  sha1 "a664ec63661a848ef46114029156a0a6006feecd"
   revision 2
 
   bottle do
@@ -16,9 +12,21 @@ class Zeromq < Formula
   head do
     url "https://github.com/zeromq/libzmq.git"
 
-    depends_on :autoconf
-    depends_on :automake
-    depends_on :libtool
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
+    depends_on "libtool" => :build
+  end
+
+  stable do
+    url "http://download.zeromq.org/zeromq-4.0.5.tar.gz"
+    sha1 "a664ec63661a848ef46114029156a0a6006feecd"
+
+    patch do
+      # enable --without-libsodium on libzmq < 4.1
+      # zeromq/zeromq4-x#105
+      url "https://gist.githubusercontent.com/minrk/478aab66adf7016158ff/raw/b5ea2d61c3f66db6ff3e266b76d1bec4ad4a238b/without-libsodium.patch"
+      sha1 "68543ff1b0f64b22994cb13b4d24bce8f76cf431"
+    end
   end
 
   option :universal
@@ -41,7 +49,11 @@ class Zeromq < Formula
       args << "--with-system-pgm"
     end
 
-    args << "--with-libsodium" if build.with? "libsodium"
+    if build.with? "libsodium"
+      args << "--with-libsodium"
+    else
+      args << "--without-libsodium"
+    end
 
     system "./autogen.sh" if build.head?
     system "./configure", *args
@@ -49,11 +61,19 @@ class Zeromq < Formula
     system "make", "install"
   end
 
-  def caveats; <<-EOS.undent
-    To install the zmq gem on 10.6 with the system Ruby on a 64-bit machine,
-    you may need to do:
+  test do
+    (testpath/"test.c").write <<-EOS.undent
+      #include <assert.h>
+      #include <zmq.h>
 
-        ARCHFLAGS="-arch x86_64" gem install zmq -- --with-zmq-dir=#{opt_prefix}
+      int main()
+      {
+        zmq_msg_t query;
+        assert(0 == zmq_msg_init_size(&query, 1));
+        return 0;
+      }
     EOS
+    system ENV.cc, "test.c", "-L#{lib}", "-lzmq", "-o", "test"
+    system "./test"
   end
 end

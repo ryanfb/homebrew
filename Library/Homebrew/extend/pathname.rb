@@ -241,6 +241,7 @@ class Pathname
     when /^Rar!/n               then :rar
     when /^7z\xBC\xAF\x27\x1C/n then :p7zip
     when /^xar!/n               then :xar
+    when /^\xed\xab\xee\xdb/n   then :rpm
     else
       # This code so that bad-tarballs and zips produce good error messages
       # when they don't unarchive properly.
@@ -261,7 +262,7 @@ class Pathname
       digest.file(self)
     else
       buf = ""
-      open("rb") { |f| digest << buf while f.read(1024, buf) }
+      open("rb") { |f| digest << buf while f.read(16384, buf) }
     end
     digest.hexdigest
   end
@@ -381,6 +382,7 @@ class Pathname
   def env_script_all_files dst, env
     dst.mkpath
     Pathname.glob("#{self}/*") do |file|
+      next if file.directory?
       dst.install_p file
       new_file = dst+file.basename
       file.write_env_script(new_file, env)
@@ -411,10 +413,11 @@ class Pathname
   end
 
   def abv
-    out=''
-    n=`find #{to_s} -type f ! -name .DS_Store | wc -l`.to_i
+    out = ""
+    n = Utils.popen_read("find", expand_path.to_s, "-type", "f", "!", "-name", ".DS_Store").split("\n").size
     out << "#{n} files, " if n > 1
-    out << `/usr/bin/du -hs #{to_s} | cut -d"\t" -f1`.strip
+    out << Utils.popen_read("/usr/bin/du", "-hs", expand_path.to_s).split("\t")[0]
+    out
   end
 
   # We redefine these private methods in order to add the /o modifier to

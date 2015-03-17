@@ -2,16 +2,15 @@ require "formula"
 
 class Imagemagick < Formula
   homepage "http://www.imagemagick.org"
-  url "http://www.imagemagick.org/download/releases/ImageMagick-6.8.9-8.tar.xz"
-  sha256 "27360449c6f3d4cca548d1780ecd5f8313a57a0a83d6d953a5088cc81714e9b0"
+  url "http://www.imagemagick.org/download/releases/ImageMagick-6.9.0-10.tar.xz"
+  sha256 "d1f5dcd32a93130feb9e980a8a97517d3a2c814a8b608d139d4756516548748c"
 
-  head "https://www.imagemagick.org/subversion/ImageMagick/trunk",
-    :using => UnsafeSubversionDownloadStrategy
+  head "http://www.imagemagick.org/subversion/ImageMagick/trunk"
 
   bottle do
-    sha1 "c395c3d14542a6c002fef70dca747f79df7a2df2" => :yosemite
-    sha1 "aef09c33ac55f1b006d197aa9f14286a6af825a6" => :mavericks
-    sha1 "2421db9b50fabf940c4572791e5c5f73ffd009c8" => :mountain_lion
+    sha256 "67ff2e6d301cd2fc88735a8fa59d01d0ded3211f4b3f2af5bce4e79be76c04e6" => :yosemite
+    sha256 "c80ba612bf50cfc11e4baadc0a057fa728a0e2656208ee9d7a3d285509526983" => :mavericks
+    sha256 "c858c154c99b8ff013bc2b6668d6c20879a246beea6eeebb9f500feee865cd20" => :mountain_lion
   end
 
   option "with-quantum-depth-8", "Compile with a quantum depth of 8 bit"
@@ -46,12 +45,6 @@ class Imagemagick < Formula
   depends_on "fftw" => :optional
 
   depends_on "xz"
-
-  def pour_bottle?
-    # If libtool is keg-only it currently breaks the bottle.
-    # This is a temporary workaround until we have a better fix.
-    not Formula["libtool"].keg_only?
-  end
 
   skip_clean :la
 

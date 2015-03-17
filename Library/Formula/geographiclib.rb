@@ -1,14 +1,14 @@
 require "formula"
 class Geographiclib < Formula
   homepage "http://geographiclib.sourceforge.net/"
-  url "https://downloads.sourceforge.net/project/geographiclib/distrib/GeographicLib-1.39.tar.gz"
-  sha1 "7a48a773997abce598e9c42ae8848e4c20f6ae72"
+  url "https://downloads.sourceforge.net/project/geographiclib/distrib/GeographicLib-1.41.tar.gz"
+  sha1 "f1ff824f0e8bc30dd349bf21d2cd54a5630c87f6"
 
   bottle do
     cellar :any
-    sha1 "6e2170f18e90c7ab765f5a78630d3da9aa1a6770" => :yosemite
-    sha1 "0b750f088ea24d9f348d452ace17d146a62b2fc7" => :mavericks
-    sha1 "62e3b10e42507475cee8b28376cd94f23ee30ca4" => :mountain_lion
+    sha256 "4b63ee2a41d497463011f7a9edcc1d1c011b2f35153e59818a787a5e7429b821" => :yosemite
+    sha256 "12da0209d90c749ba463a3c87daf1025253709fd90b5bb1fbd55d7fbf93ab2e4" => :mavericks
+    sha256 "f65d005f4bcec64175f413d2eedef5d561007f66a791333184806594cd426e45" => :mountain_lion
   end
 
   depends_on "cmake" => :build

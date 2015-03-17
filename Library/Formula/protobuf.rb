@@ -1,4 +1,4 @@
-require 'formula'
+require "formula"
 
 class OldOrNoDateutilUnlessGoogleApputils < Requirement
   # https://github.com/Homebrew/homebrew/issues/32571
@@ -35,17 +35,31 @@ class OldOrNoDateutilUnlessGoogleApputils < Requirement
 end
 
 class Protobuf < Formula
-  homepage 'http://code.google.com/p/protobuf/'
-  url 'https://protobuf.googlecode.com/svn/rc/protobuf-2.6.0.tar.bz2', :using => :curl
-  sha1 '6d9dc4c5899232e2397251f9323cbdf176391d1b'
+  homepage "https://github.com/google/protobuf/"
+  url 'https://github.com/google/protobuf/releases/download/v2.6.1/protobuf-2.6.1.tar.bz2'
+  sha1 '6421ee86d8fb4e39f21f56991daa892a3e8d314b'
+
+  devel do
+    url "https://github.com/google/protobuf/archive/v3.0.0-alpha-2.tar.gz"
+    sha256 "46df8649e2a0ce736e37f8f347f92b32a9b8b54d672bf60bd8f6f4d24d283390"
+
+    version "3.0.0-alpha-2"
+
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
+    depends_on "libtool" => :build
+  end
 
   bottle do
     cellar :any
     revision 1
-    sha1 "e0195a4905560d5869863983840b3ecad7f80c78" => :yosemite
-    sha1 "d7c3d7296beb07bf3c0aa853d136beff0fdac4ce" => :mavericks
-    sha1 "b751a032b13e09989e37a03b64be958f8796e80c" => :mountain_lion
+    sha1 "fa7019a4ee16a4bdf0c653dc3fd932dc5a7e1e3b" => :yosemite
+    sha1 "f3ba19bdabe4994c7c69d05897a52be8b13117bf" => :mavericks
+    sha1 "9239ad264a7327cc90d1d3ddb26a27a4de10527f" => :mountain_lion
   end
+
+  # this will double the build time approximately if enabled
+  option "with-check", "Run build-time check"
 
   option :universal
   option :cxx11
@@ -61,28 +75,57 @@ class Protobuf < Formula
     # Don't build in debug mode. See:
     # https://github.com/Homebrew/homebrew/issues/9279
     # http://code.google.com/p/protobuf/source/browse/trunk/configure.ac#61
-    ENV.prepend 'CXXFLAGS', '-DNDEBUG'
+    ENV.prepend "CXXFLAGS", "-DNDEBUG"
     ENV.universal_binary if build.universal?
     ENV.cxx11 if build.cxx11?
 
+    system "./autogen.sh" if build.devel?
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}",
                           "--with-zlib"
     system "make"
-    system "make install"
+    system "make", "check" if build.with? "check"
+    system "make", "install"
 
     # Install editor support and examples
     doc.install %w( editors examples )
 
-    if build.with? 'python'
-      chdir 'python' do
+    if build.with? "python"
+      chdir "python" do
         ENV.append_to_cflags "-I#{include}"
         ENV.append_to_cflags "-L#{lib}"
-        system 'python', 'setup.py', 'build'
-        system 'python', 'setup.py', 'install', '--cpp_implementation', "--prefix=#{prefix}",
-               '--single-version-externally-managed', '--record=installed.txt'
+        system "python", "setup.py", "build"
+        system "python", "setup.py", "install", "--cpp_implementation", "--prefix=#{prefix}",
+               "--single-version-externally-managed", "--record=installed.txt"
       end
     end
+  end
+
+  test do
+    testdata = if devel?
+      <<-EOS.undent
+        syntax = "proto3";
+        package test;
+        message TestCase {
+          optional string name = 4;
+        }
+        message Test {
+          repeated TestCase case = 1;
+        }
+        EOS
+    else
+      <<-EOS.undent
+        package test;
+        message TestCase {
+          required string name = 4;
+        }
+        message Test {
+          repeated TestCase case = 1;
+        }
+        EOS
+    end
+    (testpath/"test.proto").write(testdata)
+    system "protoc", "test.proto", "--cpp_out=."
   end
 
   def caveats; <<-EOS.undent

@@ -1,17 +1,13 @@
-require "formula"
-
 class CabalInstall < Formula
-  homepage "http://www.haskell.org/haskellwiki/Cabal-Install"
-  url "http://hackage.haskell.org/package/cabal-install-1.20.0.3/cabal-install-1.20.0.3.tar.gz"
-  sha1 "444448b0f704420e329e8fc1989b6743c1c8546d"
-  revision 1
+  homepage "https://www.haskell.org/cabal/"
+  url "https://hackage.haskell.org/package/cabal-install-1.22.0.1/cabal-install-1.22.0.1.tar.gz"
+  sha256 "87afa8f5d2bffafeffa9ff71062bf09469aade3ae52975c09c35ce61520d10c8"
 
   bottle do
     cellar :any
-    revision 1
-    sha1 "2e7eeaf5fa142dee42443e41e08774c6bb80df09" => :yosemite
-    sha1 "8a01264adc397dd6057cbfa1db4c709ecf9ce601" => :mavericks
-    sha1 "a5516ab7cfe110c0528da484a57124b8805f8ffd" => :mountain_lion
+    sha256 "f79146e9d429b7f2c3ad990873eb67de99ec55383cc83d82229f73f44195d90c" => :yosemite
+    sha256 "669bc4766916ecf99ceb3c2ab173a6034362654b4869105bbae7ad98f9ff8ff0" => :mavericks
+    sha256 "cffdc3a8bec2a51c2a834bb73e0c56412a8cc0d4ecca036a678f497e91a62958" => :mountain_lion
   end
 
   depends_on "ghc"
@@ -19,20 +15,8 @@ class CabalInstall < Formula
   fails_with :clang if MacOS.version < :mavericks # Same as ghc.rb
 
   def install
-    # use a temporary package database instead of ~/.cabal or ~/.ghc
-    pkg_db = "#{Dir.pwd}/package.conf.d"
-    system "ghc-pkg", "init", pkg_db
-    ENV["EXTRA_CONFIGURE_OPTS"] = "--package-db=#{pkg_db}"
-    ENV["PREFIX"] = Dir.pwd
-    inreplace "bootstrap.sh", "list --global",
-      "list --global --no-user-package-db"
-
-    # Avoid a nasty bug in Cabal by forcing the bootstrap script to pull a later version.
-    # (q.v. https://github.com/haskell/cabal/issues/1740)
-    inreplace "bootstrap.sh", 'CABAL_VER="1.20.0.0";', 'CABAL_VER="1.20.0.2";'
-
-    system "sh", "bootstrap.sh"
-    bin.install "bin/cabal"
+    system "sh", "bootstrap.sh", "--sandbox"
+    bin.install ".cabal-sandbox/bin/cabal"
     bash_completion.install "bash-completion/cabal"
   end
 

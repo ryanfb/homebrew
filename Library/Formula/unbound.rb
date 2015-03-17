@@ -1,23 +1,24 @@
 require "formula"
 
 class Unbound < Formula
-  homepage "http://www.unbound.net"
-  url "http://unbound.net/downloads/unbound-1.4.22.tar.gz"
-  sha256 "1caf5081b2190ecdb23fc4d998b7999e28640c941f53baff7aee03c092a7d29f"
-  revision 1
+  homepage "https://www.unbound.net"
+  url "https://unbound.net/downloads/unbound-1.5.3.tar.gz"
+  sha256 "76bdc875ed4d1d3f8e4cfe960e6df78ee5c6c7c18abac11331cf93a7ae129eca"
 
   depends_on "openssl"
   depends_on "libevent"
 
   bottle do
-    sha1 "e0146e449a9b72fd80760c11f093c35595db0c86" => :yosemite
-    sha1 "07d53e51e9ffda66e655ce44ee888fd46fac0d3e" => :mavericks
-    sha1 "774744eb63626555c9877ce857e0a774e961f428" => :mountain_lion
+    sha256 "4ec2891a47855facb66da9178f966cb524ed725c328f8a8278764676049d048e" => :yosemite
+    sha256 "7e0775a27cae29b72fe55e1b74f8dad51fa413a0ffba924b79d7c18d0d5d916d" => :mavericks
+    sha256 "a977d1f977b7ee9abe834cefff90d29f3e3d878ee09ff066adfcc616cdf859b1" => :mountain_lion
   end
 
   def install
-    system "./configure", "--prefix=#{prefix}", "--with-libevent=#{Formula["libevent"].opt_prefix}",
-                          "--sysconfdir=#{etc}"
+    system "./configure", "--prefix=#{prefix}",
+                          "--sysconfdir=#{etc}",
+                          "--with-libevent=#{Formula["libevent"].opt_prefix}",
+                          "--with-ssl=#{Formula["openssl"].opt_prefix}"
     system "make", "install"
   end
 

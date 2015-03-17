@@ -1,29 +1,33 @@
-require 'formula'
-
 class Fossil < Formula
-  homepage 'http://www.fossil-scm.org/'
-  head 'fossil://http://www.fossil-scm.org/'
-  url 'http://www.fossil-scm.org/download/fossil-src-20140127173344.tar.gz'
-  sha1 '9e547a27d2447f12df951e86670da12c7cfbd26a'
-  version '1.28'
+  homepage "https://www.fossil-scm.org/"
+  head "https://www.fossil-scm.org/", :using => :fossil
+  url "https://www.fossil-scm.org/download/fossil-src-20150223162734.tar.gz"
+  sha256 "c00f9e1487530adb921df730baf57e1aa23767a0afb60b865e5842bb50782942"
+  version "1.31"
 
   bottle do
     cellar :any
-    sha1 "c4f7800f7a88aee0f5c27dc8ee90e7d67dc90570" => :mavericks
-    sha1 "2b8fa6a214c937ea56e50841614cbcc68375153d" => :mountain_lion
-    sha1 "ad5e8b7cc41ae2a81f5b0ed84110d6e34b56622b" => :lion
+    sha256 "0008984514cf0956aca9371492c8ff779ab224378d620f9a97e204516b899f0c" => :yosemite
+    sha256 "ac24fa102938c7f533e9d9a28c1d622fafb2ddc54e3e2a28d2fe630a95fa9a3b" => :mavericks
+    sha256 "0e136626581d82192245d1373aeaeaa5a4a71369f08ecf8d008713e7ad5ae529" => :mountain_lion
   end
 
-  option 'without-json', 'Build without "json" command support.'
-  option 'without-tcl', "Build without the tcl-th1 command bridge."
+  option "without-json", "Build without 'json' command support"
+  option "without-tcl", "Build without the tcl-th1 command bridge"
+
+  depends_on "openssl"
 
   def install
     args = []
-    args << "--json" if build.with? 'json'
-    args << "--with-tcl" if build.with? 'tcl'
+    args << "--json" if build.with? "json"
+    args << "--with-tcl" if build.with? "tcl"
 
     system "./configure", *args
     system "make"
-    bin.install 'fossil'
+    bin.install "fossil"
+  end
+
+  test do
+    system "#{bin}/fossil", "init", "test"
   end
 end

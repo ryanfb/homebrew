@@ -45,6 +45,7 @@ module Superenv
     self['HOMEBREW_OPTIMIZATION_LEVEL'] = 'Os'
     self['HOMEBREW_BREW_FILE'] = HOMEBREW_BREW_FILE.to_s
     self['HOMEBREW_PREFIX'] = HOMEBREW_PREFIX.to_s
+    self['HOMEBREW_CELLAR'] = HOMEBREW_CELLAR.to_s
     self['HOMEBREW_TEMP'] = HOMEBREW_TEMP.to_s
     self['HOMEBREW_SDKROOT'] = effective_sysroot
     self['HOMEBREW_OPTFLAGS'] = determine_optflags
@@ -119,7 +120,7 @@ module Superenv
     when "gcc-4.2"
       begin
        apple_gcc42 = Formulary.factory('apple-gcc42')
-      rescue Exception # in --debug, catch bare exceptions too
+      rescue FormulaUnavailableError
       end
       paths << apple_gcc42.opt_bin.to_s if apple_gcc42
     when GNU_GCC_REGEXP

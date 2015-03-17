@@ -1,17 +1,15 @@
-require "formula"
-
 class AndroidNdk < Formula
-  homepage "http://developer.android.com/sdk/ndk/index.html"
+  homepage "https://developer.android.com/sdk/ndk/index.html"
 
   if MacOS.prefer_64_bit?
-    url "http://dl.google.com/android/ndk/android-ndk-r10c-darwin-x86_64.bin"
-    sha1 "a136ca2ad87771422c2cfa9474196cd29ffd9bb1"
+    url "https://dl.google.com/android/ndk/android-ndk-r10d-darwin-x86_64.bin"
+    sha256 "46e6d0249012d926996616709f9fdd2d4506309309c19e3ab7468f7ab04b0ddc"
   else
-    url "http://dl.google.com/android/ndk/android-ndk-r10c-darwin-x86.bin"
-    sha1 "b083f9a1a4dd66d55ced8ea41eea6a0a91ea1ac9"
+    url "https://dl.google.com/android/ndk/android-ndk-r10d-darwin-x86.bin"
+    sha256 "f1eb62d3a256f1339978b96b05bd3d7195debbf07b2d1e8a887d2f2b468d6cc7"
   end
 
-  version "r10c"
+  version "r10d"
 
   depends_on "android-sdk" => :recommended
 
@@ -19,15 +17,15 @@ class AndroidNdk < Formula
     bin.mkpath
 
     if MacOS.prefer_64_bit?
-      system "chmod", "a+x", "./android-ndk-r10c-darwin-x86_64.bin"
-      system "./android-ndk-r10c-darwin-x86_64.bin"
+      chmod 0755, "./android-ndk-#{version}-darwin-x86_64.bin"
+      system "./android-ndk-#{version}-darwin-x86_64.bin"
     else
-      system "chmod", "a+x", "./android-ndk-r10c-darwin-x86.bin"
-      system "./android-ndk-r10c-darwin-x86.bin"
+      chmod 0755, "./android-ndk-#{version}-darwin-x86.bin"
+      system "./android-ndk-#{version}-darwin-x86.bin"
     end
 
     # Now we can install both 64-bit and 32-bit targeting toolchains
-    prefix.install Dir["android-ndk-r10c/*"]
+    prefix.install Dir["android-ndk-#{version}/*"]
 
     # Create a dummy script to launch the ndk apps
     ndk_exec = prefix+"ndk-exec.sh"
@@ -46,10 +44,10 @@ class AndroidNdk < Formula
     If this is unacceptable you should uninstall.
 
     License information at:
-    http://developer.android.com/sdk/terms.html
+    https://developer.android.com/sdk/terms.html
 
     Software and System requirements at:
-    http://developer.android.com/sdk/ndk/index.html#requirements
+    https://developer.android.com/sdk/ndk/index.html#requirements
 
     For more documentation on Android NDK, please check:
       #{prefix}/docs

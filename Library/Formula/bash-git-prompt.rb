@@ -2,8 +2,8 @@ require "formula"
 
 class BashGitPrompt < Formula
   homepage "https://github.com/magicmonty/bash-git-prompt"
-  url "https://github.com/magicmonty/bash-git-prompt/archive/2.3.3.tar.gz"
-  sha1 "8b8cfe96db9955df885f060dbc7b4647a69db755"
+  url "https://github.com/magicmonty/bash-git-prompt/archive/2.3.5.tar.gz"
+  sha1 "16e1a9ab0ac711de79fd3b823138c16fadb3d5de"
   head "https://github.com/magicmonty/bash-git-prompt.git"
 
   def install

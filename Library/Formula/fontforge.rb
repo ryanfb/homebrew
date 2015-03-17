@@ -1,57 +1,37 @@
-require "formula"
-
 class Fontforge < Formula
   homepage "https://fontforge.github.io"
-
-  stable do
-    url "https://github.com/fontforge/fontforge/releases/download/20141014/fontforge-20141014.tar.gz"
-    sha1 "b366293e423a94d213824368460fa80f9a1ad810"
-
-    # Upstream commit allowing non-/Applications app bundle to run.
-    # Doesn't actually work for me yet in stable - Keep an eye on that.
-    patch do
-      url "https://github.com/fontforge/fontforge/commit/bce235d23b8.diff"
-      sha1 "8ec20f07bbf5f93c052bed7304c6e667046910ef"
-    end
-  end
+  url "https://github.com/fontforge/fontforge/archive/20150228.tar.gz"
+  sha256 "5b4e66159856da0e231488f8e6d508ec158ba9cc6892ec34a491f469debedc20"
+  head "https://github.com/fontforge/fontforge.git"
 
   bottle do
-    revision 1
-    sha1 "ef8e64045c5f97d154a8deb96efb94f72b4ecf6a" => :yosemite
-    sha1 "37363b5e3923118b1b7eaeb7c4320b955fa7c8b5" => :mavericks
-    sha1 "1d463715d0ca9d27dcac36904c28b750698f2de0" => :mountain_lion
+    sha1 "5cdcd9ec8f1679a9285b3b85a8c063fd7a1c7153" => :yosemite
+    sha1 "25382df7037e07d8cd72d10ac42657699d5005e1" => :mavericks
+    sha1 "b13d67164ecdad117681234e3dd9386ab7611671" => :mountain_lion
   end
 
-  head do
-    url "https://github.com/fontforge/fontforge.git"
-
-    # Remove this block after next stable release and make mandatory for all again.
-    # Several unique issues fixed in HEAD.
-    depends_on "zeromq"
-    depends_on "czmq"
-  end
+  option "with-giflib", "Build with GIF support"
 
   deprecated_option "with-x" => "with-x11"
   deprecated_option "with-gif" => "with-giflib"
 
-  option "with-giflib", "Build with GIF support"
-
   # Autotools are required to build from source in all releases.
-  # I have upstreamed a request to change this, so keep monitoring the situation.
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "pkg-config" => :build
   depends_on "libtool" => :run
   depends_on "gettext"
   depends_on "pango"
-  depends_on "libpng"   => :recommended
-  depends_on "jpeg"     => :recommended
-  depends_on "libtiff"  => :recommended
-  depends_on :x11 => :optional
-  depends_on "giflib" => :optional
-  depends_on "libspiro" => :optional
+  depends_on "zeromq"
+  depends_on "czmq"
   depends_on "fontconfig"
   depends_on "cairo"
+  depends_on "libpng" => :recommended
+  depends_on "jpeg" => :recommended
+  depends_on "libtiff" => :recommended
+  depends_on "giflib" => :optional
+  depends_on "libspiro" => :optional
+  depends_on :x11 => :optional
   depends_on :python if MacOS.version <= :snow_leopard
 
   fails_with :llvm do
@@ -60,9 +40,17 @@ class Fontforge < Formula
   end
 
   def install
-    args = ["--prefix=#{prefix}"]
+    args = %W[
+      --prefix=#{prefix}
+      --disable-silent-rules
+      --disable-dependency-tracking
+    ]
 
-    args << "--with-x" if build.with? "x11"
+    if build.with? "x11"
+      args << "--with-x"
+    else
+      args << "--without-x"
+    end
 
     args << "--without-libpng" if build.without? "libpng"
     args << "--without-libjpeg" if build.without? "jpeg"
@@ -73,10 +61,6 @@ class Fontforge < Formula
     # Fix linker error; see: http://trac.macports.org/ticket/25012
     ENV.append "LDFLAGS", "-lintl"
 
-    # Add environment variables for system libs
-    ENV.append "ZLIB_CFLAGS", "-I/usr/include"
-    ENV.append "ZLIB_LIBS", "-L/usr/lib -lz"
-
     # And finding Homebrew's Python
     ENV.append_path "PKG_CONFIG_PATH", "#{HOMEBREW_PREFIX}/Frameworks/Python.framework/Versions/2.7/lib/pkgconfig/"
     ENV.prepend "LDFLAGS", "-L#{%x(python-config --prefix).chomp}/lib"
@@ -84,18 +68,29 @@ class Fontforge < Formula
     # Reset ARCHFLAGS to match how we build
     ENV["ARCHFLAGS"] = "-arch #{MacOS.preferred_arch}"
 
-    # Bootstrap in every build. See the link below.
-    system "./bootstrap" #https://github.com/fontforge/fontforge/issues/1806
+    # Bootstrap in every build: https://github.com/fontforge/fontforge/issues/1806
+    system "./bootstrap"
     system "./configure", *args
     system "make"
     system "make", "install"
+  end
 
+  def post_install
     # Link this to enable symlinking into /Applications with brew linkapps.
     # The name is case-sensitive. It breaks without both F's capitalised.
-    ln_s "#{share}/fontforge/osx/FontForge.app", prefix
+    # If you build with x11 now, it automatically creates an dynamic link from bin/fontforge
+    # to @executable_path/../Frameworks/Breakpad.framework/Versions/A/Breakpad which
+    # obviously doesn't exist given fontforge and FontForge.app are in different places.
+    # If this isn't fixed within a couple releases, consider dumping everything in libexec.
+    # https://github.com/fontforge/fontforge/issues/2022
+    if build.with? "x11"
+      ln_s "#{share}/fontforge/osx/FontForge.app", prefix
+      system "install_name_tool", "-change", "@executable_path/../Frameworks/Breakpad.framework/Versions/A/Breakpad",
+             "#{bin}/fontforge", "#{share}/fontforge/osx/FontForge.app/Contents/Frameworks/Breakpad.framework/Versions/A/Breakpad"
+    end
   end
 
   test do
-    system "#{bin}/fontforge", "-version"
+    system bin/"fontforge", "-version"
   end
 end

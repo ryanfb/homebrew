@@ -18,6 +18,15 @@ Or upgrade a specific formula with:
 
 <a name="cleanup"></a>
 
+### How do I stop certain formulae from being updated?
+To stop something from being updated/upgraded:
+
+    brew pin $FORMULA
+
+To allow that formulae to update again:
+
+    brew unpin $FORMULA
+
 ### How do I uninstall old versions of a formula?
 By default, Homebrew does not uninstall old versions of a formula, so
 over time you will accumulate old versions. To remove them, simply use:
@@ -54,9 +63,7 @@ about when you do (`brew upgrade`). This can be surprising.
 To remove a formula entirely, you may do
 (`brew uninstall formula_name --force`).
 
-Be careful as this is a destructive operation and unfortunately, in
-Homebrew 0.9.5 it seems that Homebrew does not support the `--dry-run`
-option.
+Be careful as this is a destructive operation.
 
 ### Where does stuff get downloaded?
 
@@ -68,25 +75,23 @@ Which is usually: `/Library/Caches/Homebrew`
 GUI apps on OS X don’t have `/usr/local/bin` in their `PATH` by default.
 If you’re on Mountain Lion, you can fix this by running
 `launchctl setenv PATH "/usr/local/bin:$PATH"`. [More details
-here](http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/5444960#5444960),
+here](https://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x/5444960#5444960),
 including how to set this across reboots. If you’re pre-Mountain Lion,
 [here’s an official
-alternative](http://developer.apple.com/library/mac/#qa/qa1067/_index.html).
+alternative](https://developer.apple.com/legacy/library/qa/qa1067/_index.html).
 
 ### How do I contribute to Homebrew?
 Read everything in https://github.com/Homebrew/homebrew/blob/master/CONTRIBUTING.md.
 
 ### Why do you compile everything?
-Projects distribute source tarballs, generally, but if they provide a
-good binary, we’ll use it. Though we don’t always, because Homebrew is
-about **homebrewing**, it’s half the point that you can just
+Homebrew is about **homebrewing**, it’s half the point that you can just
 `brew edit $FORMULA` and change how the formula is compiled to your own
 specification.
 
 Homebrew does provide pre-compiled versions for some formulae. These
 pre-compiled versions are referred to as **bottles** and are available
 at:
-[http://sf.net/projects/machomebrew/files](http://sf.net/projects/machomebrew/files).
+[https://bintray.com/homebrew/bottles](https://bintray.com/homebrew/bottles).
 
 If available, bottled binaries will be used by default except under the
 following conditions:
@@ -116,11 +121,11 @@ We aim to bottle everything.
 
 Or:
 
-`brew install http://raw.github.com/user/repo/branch/formula.rb`
+`brew install https://raw.github.com/user/repo/branch/formula.rb`
 
 Or:
 
-`brew pull http://github.com/Homebrew/homebrew/pulls/1234`
+`brew pull https://github.com/Homebrew/homebrew/pulls/1234`
 
 ### Why does Homebrew insist I install to `/usr/local` with such vehemence?
 <a name="usrlocal"></a>
@@ -244,4 +249,4 @@ to with `brew link`.
 
 ### How can I specify different configure arguments for a formula?
 `brew edit $FORMULA` and edit the formula. Currently there is no
-other way to do this, but we’ll design something like that into brew2.
+other way to do this.
