@@ -32,6 +32,7 @@ class Tesseract < Formula
 
   option "all-languages", "Install recognition data for all languages"
   option "training-tools", "Install OCR training tools"
+  option "opencl", "Enable OpenCL support"
 
   depends_on "libtiff" => :recommended
   depends_on "leptonica"
@@ -140,7 +141,11 @@ class Tesseract < Formula
     ENV.cxx11 if build.devel?
     
     system "./autogen.sh" if build.head?
-    system "./configure", "--prefix=#{prefix}"
+    if build.include? "opencl"
+      system "./configure", "--prefix=#{prefix}", "--enable-opencl"
+    else
+      system "./configure", "--prefix=#{prefix}"
+    end
     system "make"
     system "make install"
     if build.include? "training-tools"
